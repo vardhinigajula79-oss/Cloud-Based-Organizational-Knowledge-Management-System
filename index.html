@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizational Knowledge Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+        
+        header {
+            background: #173b65;
+            color: white;
+            padding: 22px;
+            text-align: center;
+        }
+        
+        nav {
+            background: #102c4b;
+            padding: 14px;
+            text-align: center;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 12px;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 22px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #0001;
+        }
+        
+        .card h3 {
+            color: #2457a7;
+        }
+        
+        input,
+        select,
+        textarea,
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 7px 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            font: inherit;
+        }
+        
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+        
+        button {
+            background: #2457a7;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #173d78;
+        }
+        
+        .delete {
+            background: #d93636;
+        }
+        
+        .knowledge-item {
+            background: white;
+            padding: 18px;
+            border-radius: 8px;
+            margin: 12px 0;
+            overflow-wrap: anywhere;
+        }
+        
+        .category {
+            color: #087443;
+            font-weight: bold;
+        }
+        
+        #message {
+            color: #087443;
+        }
+        
+        footer {
+            background: #173b65;
+            color: white;
+            padding: 18px;
+            text-align: center;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🏢 Organizational Knowledge Hub</h1>
+        <p>Store, organize and discover organizational knowledge</p>
+    </header>
+
+    <nav>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#addKnowledge">Add Knowledge</a>
+        <a href="#knowledge">Knowledge Library</a>
+    </nav>
+
+    <div class="container">
+
+        <section id="dashboard">
+            <h2>Dashboard</h2>
+
+            <div class="dashboard">
+                <div class="card">
+                    <h3>Total Articles</h3>
+                    <h2 id="total">0</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Departments</h3>
+                    <h2 id="departments">0</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Knowledge Categories</h3>
+                    <h2 id="categories">0</h2>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" id="addKnowledge" style="margin-top:25px">
+            <h2>Add Knowledge Article</h2>
+
+            <form id="knowledgeForm">
+                <input type="text" id="title" placeholder="Article title" required>
+
+                <select id="department" required>
+            <option value="">Select Department</option>
+            <option>Human Resources</option>
+            <option>Information Technology</option>
+            <option>Finance</option>
+            <option>Marketing</option>
+            <option>Operations</option>
+        </select>
+
+                <select id="category" required>
+            <option value="">Select Category</option>
+            <option>Policies</option>
+            <option>Training</option>
+            <option>Project Documentation</option>
+            <option>Technical Knowledge</option>
+            <option>Best Practices</option>
+        </select>
+
+                <textarea id="content" placeholder="Enter knowledge or information..." required></textarea>
+
+                <button type="submit">Save Article</button>
+            </form>
+
+            <p id="message" role="status"></p>
+        </section>
+
+        <section id="knowledge" style="margin-top:25px">
+            <h2>Knowledge Library</h2>
+
+            <input type="text" id="search" placeholder="Search articles..." oninput="displayKnowledge()">
+
+            <select id="filter" onchange="displayKnowledge()">
+        <option value="">All Departments</option>
+        <option>Human Resources</option>
+        <option>Information Technology</option>
+        <option>Finance</option>
+        <option>Marketing</option>
+        <option>Operations</option>
+    </select>
+
+            <div id="knowledgeList"></div>
+        </section>
+
+    </div>
+
+    <footer>
+        Cloud-Based Organizational Knowledge Management System
+    </footer>
+
+    <script>
+        let articles = [];
+
+        const form = document.getElementById("knowledgeForm");
+
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const article = {
+                id: Date.now() + Math.random(),
+                title: document.getElementById("title").value.trim(),
+                department: document.getElementById("department").value,
+                category: document.getElementById("category").value,
+                content: document.getElementById("content").value.trim()
+            };
+
+            if (!article.title || !article.content ||
+                !article.department || !article.category) {
+                document.getElementById("message").textContent =
+                    "Please complete all fields.";
+                return;
+            }
+
+            articles.push(article);
+
+            form.reset();
+
+            document.getElementById("message").textContent =
+                "Knowledge article saved successfully!";
+
+            updateDashboard();
+            displayKnowledge();
+        });
+
+        function updateDashboard() {
+            document.getElementById("total").textContent =
+                articles.length;
+
+            document.getElementById("departments").textContent =
+                new Set(articles.map(a => a.department)).size;
+
+            document.getElementById("categories").textContent =
+                new Set(articles.map(a => a.category)).size;
+        }
+
+        function displayKnowledge() {
+            const list = document.getElementById("knowledgeList");
+            const search = document.getElementById("search")
+                .value.toLowerCase();
+            const filter = document.getElementById("filter").value;
+
+            list.replaceChildren();
+
+            const results = articles.filter(article =>
+                (article.title.toLowerCase().includes(search) ||
+                    article.content.toLowerCase().includes(search) ||
+                    article.category.toLowerCase().includes(search) ||
+                    article.department.toLowerCase().includes(search)) &&
+                (!filter || article.department === filter)
+            );
+
+            if (results.length === 0) {
+                list.textContent = "No knowledge articles found.";
+                return;
+            }
+
+            results.forEach(article => {
+                const card = document.createElement("div");
+                card.className = "knowledge-item";
+
+                const title = document.createElement("h3");
+                title.textContent = article.title;
+
+                const department = document.createElement("p");
+                department.textContent = "Department: " + article.department;
+
+                const category = document.createElement("p");
+                category.className = "category";
+                category.textContent = "Category: " + article.category;
+
+                const content = document.createElement("p");
+                content.textContent = article.content;
+
+                const remove = document.createElement("button");
+                remove.className = "delete";
+                remove.textContent = "Delete Article";
+
+                remove.onclick = function() {
+                    articles = articles.filter(a => a.id !== article.id);
+                    updateDashboard();
+                    displayKnowledge();
+                };
+
+                card.append(title, department, category, content, remove);
+                list.appendChild(card);
+            });
+        }
+
+        updateDashboard();
+        displayKnowledge();
+    </script>
+
+</body>
+
+</html>
